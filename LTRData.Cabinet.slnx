@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="src/LTRData.Cabinet/LTRData.Cabinet.csproj" />
+  <Folder Name="/Tests/">
+    <Project Path="tests/LTRData.Cabinet.Tests/LTRData.Cabinet.Tests.csproj" />
+  </Folder>
+</Solution>
