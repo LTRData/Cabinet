@@ -51,10 +51,14 @@ public sealed class CabinetArchive : IDisposable
 
     public static CabinetArchive Open(Stream stream, CabinetOptions? options = null)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(stream);
+#else
         if (stream is null)
         {
             throw new ArgumentNullException(nameof(stream));
         }
+#endif
 
         if (!stream.CanRead)
         {
@@ -87,10 +91,14 @@ public sealed class CabinetArchive : IDisposable
     public static async Task<CabinetArchive> OpenAsync(Stream stream,
         CabinetOptions? options = null, CancellationToken cancellationToken = default)
     {
+#if NET6_0_OR_GREATER
+        ArgumentNullException.ThrowIfNull(stream);
+#else
         if (stream is null)
         {
             throw new ArgumentNullException(nameof(stream));
         }
+#endif
 
         if (!stream.CanRead)
         {
