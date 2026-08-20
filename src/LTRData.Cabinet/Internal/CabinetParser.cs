@@ -11,7 +11,9 @@ internal static class CabinetParser
     {
         var reader = new LittleEndianReader(stream);
         if (reader.ReadUInt32() != Signature)
+        {
             throw new CabinetFormatException("The stream does not contain an MSCF cabinet.");
+        }
 
         _ = reader.ReadUInt32(); // reserved1
         uint cabinetSize = reader.ReadUInt32();
@@ -62,13 +64,19 @@ internal static class CabinetParser
             ushort compression = reader.ReadUInt16();
             var type = (CabinetCompressionType)(compression & 0x000F);
             if (type < CabinetCompressionType.None || type > CabinetCompressionType.Lzx)
+            {
                 throw new CabinetFormatException($"Unknown cabinet compression type {compression & 0x000F}.");
+            }
+
             folders[i] = new CabinetFolder(i, dataOffset, blockCount, type,
                 compression >> 8, reader.ReadBytes(folderReserveSize));
         }
 
         if (fileTableOffset > cabinetSize || fileTableOffset < reader.Position)
+        {
             throw new CabinetFormatException("The cabinet file table offset is invalid.");
+        }
+
         stream.Position = fileTableOffset;
 
         var files = new CabinetFile[fileCount];
@@ -94,7 +102,11 @@ internal static class CabinetParser
 
     private static DateTime? DecodeDosDateTime(ushort date, ushort time)
     {
-        if (date == 0) return null;
+        if (date == 0)
+        {
+            return null;
+        }
+
         try
         {
             return new DateTime(1980 + (date >> 9), (date >> 5) & 15, date & 31,

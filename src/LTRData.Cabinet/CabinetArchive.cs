@@ -51,8 +51,16 @@ public sealed class CabinetArchive : IDisposable
 
     public static CabinetArchive Open(Stream stream, CabinetOptions? options = null)
     {
-        if (stream is null) throw new ArgumentNullException(nameof(stream));
-        if (!stream.CanRead) throw new ArgumentException("The stream must be readable.", nameof(stream));
+        if (stream is null)
+        {
+            throw new ArgumentNullException(nameof(stream));
+        }
+
+        if (!stream.CanRead)
+        {
+            throw new ArgumentException("The stream must be readable.", nameof(stream));
+        }
+
         options ??= new CabinetOptions();
         ValidateOptions(options);
 
@@ -66,7 +74,11 @@ public sealed class CabinetArchive : IDisposable
         }
         catch
         {
-            if (backing is not null && !ReferenceEquals(backing, stream)) backing.Dispose();
+            if (backing is not null && !ReferenceEquals(backing, stream))
+            {
+                backing.Dispose();
+            }
+
             DeleteTemporary(path);
             throw;
         }
@@ -75,8 +87,16 @@ public sealed class CabinetArchive : IDisposable
     public static async Task<CabinetArchive> OpenAsync(Stream stream,
         CabinetOptions? options = null, CancellationToken cancellationToken = default)
     {
-        if (stream is null) throw new ArgumentNullException(nameof(stream));
-        if (!stream.CanRead) throw new ArgumentException("The stream must be readable.", nameof(stream));
+        if (stream is null)
+        {
+            throw new ArgumentNullException(nameof(stream));
+        }
+
+        if (!stream.CanRead)
+        {
+            throw new ArgumentException("The stream must be readable.", nameof(stream));
+        }
+
         options ??= new CabinetOptions();
         ValidateOptions(options);
 
@@ -91,7 +111,11 @@ public sealed class CabinetArchive : IDisposable
         }
         catch
         {
-            if (backing is not null && !ReferenceEquals(backing, stream)) backing.Dispose();
+            if (backing is not null && !ReferenceEquals(backing, stream))
+            {
+                backing.Dispose();
+            }
+
             DeleteTemporary(path);
             throw;
         }
@@ -99,22 +123,40 @@ public sealed class CabinetArchive : IDisposable
 
     public void Dispose()
     {
-        if (disposed) return;
+        if (disposed)
+        {
+            return;
+        }
+
         disposed = true;
-        if (!ReferenceEquals(backingStream, originalStream)) backingStream.Dispose();
-        if (!leaveOpen) originalStream.Dispose();
+        if (!ReferenceEquals(backingStream, originalStream))
+        {
+            backingStream.Dispose();
+        }
+
+        if (!leaveOpen)
+        {
+            originalStream.Dispose();
+        }
+
         DeleteTemporary(temporaryPath);
     }
 
     private static void ValidateOptions(CabinetOptions options)
     {
         if (options.MemoryBufferThreshold < 0)
-            throw new ArgumentOutOfRangeException(nameof(options.MemoryBufferThreshold));
+        {
+            throw new ArgumentOutOfRangeException(nameof(options), "Invalid memory buffer threshold.");
+        }
     }
 
     private static void DeleteTemporary(string? path)
     {
-        if (path is null) return;
+        if (path is null)
+        {
+            return;
+        }
+
         try { File.Delete(path); }
         catch (IOException) { }
         catch (UnauthorizedAccessException) { }

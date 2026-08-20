@@ -3,7 +3,7 @@ using System.IO;
 namespace LTRData.Cabinet;
 
 /// <summary>Thrown when cabinet data is malformed or unsupported.</summary>
-public sealed class CabinetFormatException : InvalidDataException
+public sealed class CabinetFormatException : Exception
 {
     public CabinetFormatException(string message) : base(message) { }
 

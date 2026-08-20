@@ -1,4 +1,5 @@
 using System.Buffers.Binary;
+using Xunit;
 
 namespace LTRData.Cabinet.Tests;
 

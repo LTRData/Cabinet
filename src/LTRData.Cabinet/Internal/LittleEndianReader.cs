@@ -14,7 +14,11 @@ internal sealed class LittleEndianReader
     internal byte ReadByte()
     {
         int value = stream.ReadByte();
-        if (value < 0) throw UnexpectedEnd();
+        if (value < 0)
+        {
+            throw UnexpectedEnd();
+        }
+
         return (byte)value;
     }
 
@@ -43,7 +47,11 @@ internal sealed class LittleEndianReader
         for (int i = 0; i < maximumBytes; i++)
         {
             byte value = ReadByte();
-            if (value == 0) return encoding.GetString(bytes.ToArray());
+            if (value == 0)
+            {
+                return encoding.GetString(bytes.ToArray());
+            }
+
             bytes.WriteByte(value);
         }
 
@@ -55,7 +63,11 @@ internal sealed class LittleEndianReader
         while (count > 0)
         {
             int read = stream.Read(buffer, offset, count);
-            if (read == 0) throw UnexpectedEnd();
+            if (read == 0)
+            {
+                throw UnexpectedEnd();
+            }
+
             offset += read;
             count -= read;
         }

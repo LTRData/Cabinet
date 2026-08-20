@@ -5,7 +5,10 @@ internal static class SeekableInput
     internal static Stream Create(Stream input, CabinetOptions options, out string? temporaryPath)
     {
         temporaryPath = null;
-        if (input.CanSeek) return input;
+        if (input.CanSeek)
+        {
+            return input;
+        }
 
         var memory = new MemoryStream();
         var buffer = new byte[81920];
@@ -38,7 +41,10 @@ internal static class SeekableInput
     internal static async Task<(Stream Stream, string? TemporaryPath)> CreateAsync(
         Stream input, CabinetOptions options, CancellationToken cancellationToken)
     {
-        if (input.CanSeek) return (input, null);
+        if (input.CanSeek)
+        {
+            return (input, null);
+        }
 
         var memory = new MemoryStream();
         var buffer = new byte[81920];
