@@ -29,7 +29,7 @@ internal sealed class CabinetFileStream : Stream
 
     public override int Read(byte[] buffer, int offset, int count)
     {
-        ValidateBufferArguments(buffer, offset, count);
+        ValidateReadArguments(buffer, offset, count);
         ThrowIfDisposed();
         SkipToFile();
 
@@ -97,7 +97,7 @@ internal sealed class CabinetFileStream : Stream
         }
     }
 
-    private static void ValidateBufferArguments(byte[] buffer, int offset, int count)
+    private static void ValidateReadArguments(byte[] buffer, int offset, int count)
     {
 #if NET6_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(buffer);

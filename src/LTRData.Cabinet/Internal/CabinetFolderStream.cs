@@ -43,7 +43,7 @@ internal sealed class CabinetFolderStream : Stream
 
     public override int Read(byte[] buffer, int offset, int count)
     {
-        ValidateBufferArguments(buffer, offset, count);
+        ValidateReadArguments(buffer, offset, count);
         ThrowIfDisposed();
 
         int totalRead = 0;
@@ -265,7 +265,7 @@ internal sealed class CabinetFolderStream : Stream
         (uint)(buffer[offset] | buffer[offset + 1] << 8 |
             buffer[offset + 2] << 16 | buffer[offset + 3] << 24);
 
-    private static void ValidateBufferArguments(byte[] buffer, int offset, int count)
+    private static void ValidateReadArguments(byte[] buffer, int offset, int count)
     {
 #if NET6_0_OR_GREATER
         ArgumentNullException.ThrowIfNull(buffer);
