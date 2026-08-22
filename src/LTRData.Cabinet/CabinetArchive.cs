@@ -9,6 +9,7 @@ public sealed class CabinetArchive : IDisposable
     private readonly Stream backingStream;
     private readonly bool leaveOpen;
     private readonly string? temporaryPath;
+    private readonly object streamLock = new();
     private bool disposed;
 
     private CabinetArchive(Stream originalStream, Stream backingStream,
@@ -32,6 +33,11 @@ public sealed class CabinetArchive : IDisposable
         NextDisk = parsed.NextDisk;
         Folders = Array.AsReadOnly(parsed.Folders);
         Files = Array.AsReadOnly(parsed.Files);
+
+        foreach (CabinetFile file in parsed.Files)
+        {
+            file.Attach(this);
+        }
     }
 
     public uint CabinetSize { get; }
@@ -129,22 +135,69 @@ public sealed class CabinetArchive : IDisposable
         }
     }
 
+    internal Stream OpenFile(CabinetFile file)
+    {
+        ThrowIfDisposed();
+
+        if (!ReferenceEquals(file.Archive, this))
+        {
+            throw new ArgumentException("The file does not belong to this cabinet.", nameof(file));
+        }
+
+        if (file.ContinuesFromPreviousCabinet || file.ContinuesToNextCabinet)
+        {
+            throw new NotSupportedException("Files spanning multiple cabinets are not supported.");
+        }
+
+        if (file.FolderIndex >= Folders.Count)
+        {
+            throw new CabinetFormatException("The file refers to an invalid cabinet folder.");
+        }
+
+        var folderStream = new CabinetFolderStream(this, Folders[file.FolderIndex]);
+        return new CabinetFileStream(folderStream, file.FolderOffset, file.Length);
+    }
+
+    internal void ReadExactly(long position, byte[] buffer, int offset, int count)
+    {
+        lock (streamLock)
+        {
+            ThrowIfDisposed();
+            backingStream.Position = position;
+
+            while (count > 0)
+            {
+                int read = backingStream.Read(buffer, offset, count);
+                if (read == 0)
+                {
+                    throw new CabinetFormatException("Unexpected end of cabinet data.");
+                }
+
+                offset += read;
+                count -= read;
+            }
+        }
+    }
+
     public void Dispose()
     {
-        if (disposed)
+        lock (streamLock)
         {
-            return;
-        }
+            if (disposed)
+            {
+                return;
+            }
 
-        disposed = true;
-        if (!ReferenceEquals(backingStream, originalStream))
-        {
-            backingStream.Dispose();
-        }
+            disposed = true;
+            if (!ReferenceEquals(backingStream, originalStream))
+            {
+                backingStream.Dispose();
+            }
 
-        if (!leaveOpen)
-        {
-            originalStream.Dispose();
+            if (!leaveOpen)
+            {
+                originalStream.Dispose();
+            }
         }
 
         DeleteTemporary(temporaryPath);
@@ -156,6 +209,18 @@ public sealed class CabinetArchive : IDisposable
         {
             throw new ArgumentOutOfRangeException(nameof(options), "Invalid memory buffer threshold.");
         }
+    }
+
+    private void ThrowIfDisposed()
+    {
+#if NET7_0_OR_GREATER
+        ObjectDisposedException.ThrowIf(disposed, this);
+#else
+        if (disposed)
+        {
+            throw new ObjectDisposedException(nameof(CabinetArchive));
+        }
+#endif
     }
 
     private static void DeleteTemporary(string? path)
