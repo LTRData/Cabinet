@@ -14,6 +14,7 @@ internal sealed class CabinetFolderStream : Stream
     private readonly byte[] output = new byte[MaximumDataBlockOutput];
     private readonly byte[] msZipHistory = new byte[MsZipHistorySize];
 
+    private LzxDecoder? lzxDecoder;
     private long nextDataOffset;
     private int blocksRemaining;
     private int outputOffset;
@@ -133,7 +134,8 @@ internal sealed class CabinetFolderStream : Stream
                 break;
 
             case CabinetCompressionType.Lzx:
-                throw new NotSupportedException("LZX cabinet decompression is not implemented yet.");
+                DecodeLzx(stored, dataReserveSize, compressedSize, uncompressedSize);
+                break;
 
             case CabinetCompressionType.Quantum:
                 throw new NotSupportedException("Quantum cabinet decompression is not supported.");
@@ -198,6 +200,15 @@ internal sealed class CabinetFolderStream : Stream
         UpdateMsZipHistory(output, uncompressedSize);
     }
 
+    private void DecodeLzx(byte[] stored, int dataOffset, int compressedSize,
+        int uncompressedSize)
+    {
+        lzxDecoder ??= new LzxDecoder(folder.CompressionParameter);
+        lzxDecoder.Decompress(
+            stored.AsSpan(dataOffset, compressedSize),
+            output.AsSpan(0, uncompressedSize));
+    }
+
     private static void ReadExactly(Stream source, byte[] buffer, int count,
         bool discardOutput)
     {
@@ -240,19 +251,19 @@ internal sealed class CabinetFolderStream : Stream
         }
 
         uint trailing = 0;
-        if (count >= 1)
+        if (count == 3)
         {
-            trailing |= data[offset];
+            trailing |= (uint)data[offset++] << 16;
         }
 
         if (count >= 2)
         {
-            trailing |= (uint)data[offset + 1] << 8;
+            trailing |= (uint)data[offset++] << 8;
         }
 
-        if (count == 3)
+        if (count >= 1)
         {
-            trailing |= (uint)data[offset + 2] << 16;
+            trailing |= data[offset];
         }
 
         return checksum ^ trailing;

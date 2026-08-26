@@ -20,8 +20,9 @@ for the lifetime of every entry stream.
 
 ## Status
 
-Early development. The public API is not yet stable. Uncompressed and MSZIP
-folder data can be read; LZX support is still under development.
+Early development. The public API is not yet stable. Uncompressed, MSZIP, and
+LZX folder data can be read. Quantum compression and multi-cabinet spanning
+are not supported.
 
 ## License
 
