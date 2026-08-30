@@ -5,3 +5,5 @@ TestResults/
 *.user
 *.suo
 *.tmp
+/src/Debug
+/src/Release

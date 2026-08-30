@@ -9,7 +9,11 @@ public sealed class CabinetArchive : IDisposable
     private readonly Stream backingStream;
     private readonly bool leaveOpen;
     private readonly string? temporaryPath;
+#if NET9_0_OR_GREATER
+    private readonly Lock streamLock = new();
+#else
     private readonly object streamLock = new();
+#endif
     private bool disposed;
 
     private CabinetArchive(Stream originalStream, Stream backingStream,

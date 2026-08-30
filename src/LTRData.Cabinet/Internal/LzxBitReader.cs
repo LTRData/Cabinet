@@ -21,7 +21,8 @@ internal ref struct LzxBitReader
     internal bool TryReadBits(int count, out uint value)
     {
         value = 0;
-        if ((uint)count > 16u)
+        // LZX position slots 36 and above use a 17-bit verbatim offset.
+        if ((uint)count > 17u)
         {
             return false;
         }
@@ -50,7 +51,7 @@ internal ref struct LzxBitReader
         return true;
     }
 
-    internal bool TryPeekBits(int count, out uint value)
+    internal readonly bool TryPeekBits(int count, out uint value)
     {
         var copy = this;
         return copy.TryReadBits(count, out value);

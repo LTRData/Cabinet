@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net48;net8.0</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net48;net8.0;net9.0;net10.0</TargetFrameworks>
     <AssemblyName>LTRData.Cabinet</AssemblyName>
     <RootNamespace>LTRData.Cabinet</RootNamespace>
     <PackageId>LTRData.Cabinet</PackageId>
@@ -10,8 +10,31 @@
     <RepositoryType>git</RepositoryType>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
 	<NoWarn>$(NoWarn);1591</NoWarn>
+
+	<Company>LTR Data</Company>
+	<Authors>Olof Lagerkvist</Authors>
+	<OutputPath>..\$(Configuration)</OutputPath>
+	<GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+	<PackageOutputPath>$(LocalNuGetPath)</PackageOutputPath>
+	<PublishRepositoryUrl>true</PublishRepositoryUrl>
+	<IncludeSymbols>true</IncludeSymbols>
+	<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+	<Copyright>2026, Olof Lagerkvist, LTR Data</Copyright>
+	<PackageVersion>$(FileVersion)</PackageVersion>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
+
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' != 'net8.0'">
-    <PackageReference Include="System.Memory" Version="4.5.5" />
+
+  <ItemGroup Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'netcoreapp'))">
+	<PackageReference Include="System.Memory" Version="*" />
   </ItemGroup>
+
+  <ItemGroup>
+	<None Include="..\..\README.md" Link="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<InternalsVisibleTo Include="LTRData.Cabinet.Tests" />
+  </ItemGroup>
+  
 </Project>

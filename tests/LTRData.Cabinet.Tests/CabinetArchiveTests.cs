@@ -213,7 +213,7 @@ public sealed class CabinetArchiveTests
             CabinetCompressionType.None,
             [(data, data.Length)],
             "data.txt", 0, data.Length);
-        cabinet[cabinet.Length - 1] ^= 0x80;
+        cabinet[^1] ^= 0x80;
 
         using var archive = CabinetArchive.Open(new MemoryStream(cabinet));
         using Stream file = Assert.Single(archive.Files).Open();
